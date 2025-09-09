@@ -2,6 +2,9 @@
 
 ## Assignment 1:
 
+
+### 2.1
+
  - (a) What Unicode character does chr(0) return?
    - '\x00'
  - (b) How does this character’s string representation (__repr__()) differ from its printed representation?
@@ -12,6 +15,8 @@ following in your Python interpreter and see if it matches your expectations:
   - >>> print(chr(0)) empty
   - >>> "this is a test" + chr(0) + "string" 'this is a test\x00string'
   - >>> print("this is a test" + chr(0) + "string") this is a teststrin
+
+### 2.2
 
 (a) What are some reasons to prefer training our tokenizer on UTF-8 encoded bytes, rather than
 UTF-16 or UTF-32? It may be helpful to compare the output of these encodings for various
@@ -55,3 +60,5 @@ Second byte must start with 10 → continuation byte
 
 So any multi-byte character must follow this pattern exactly.
 ```
+
+### 2.3
