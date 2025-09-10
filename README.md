@@ -61,4 +61,64 @@ Second byte must start with 10 → continuation byte
 So any multi-byte character must follow this pattern exactly.
 ```
 
-### 2.3
+### 2.3, 2.4, 2.5
+```
+def run_train_bpe(
+    input_path: str,
+    vocab_size: int,
+    special_tokens: list[str]
+):
+    vocab = {i: bytes([i]) for i in range(256)}
+    next_id = 256
+
+        # Add special tokens
+    for tok in special_tokens:
+        vocab[next_id] = tok.encode("utf-8")
+        next_id += 1
+    
+    # 2. Read and tokenize input
+    with open(input_path, "r", encoding="utf-8") as f:
+        text = f.read()
+    pre_tokens = [list(word.encode("utf-8")) for word in text.split()]
+
+    merges = []
+
+    # 3. Train BPE
+    while len(vocab) < vocab_size:
+        # Count pairs
+        pair_counts = Counter()
+        for token in pre_tokens:
+            for i in range(len(token) - 1):
+                pair = (token[i], token[i+1])
+                pair_counts[pair] += 1
+
+        if not pair_counts:
+            break
+        # 4. Pick best pair
+        max_count = max(pair_counts.values())
+        candidates = [p for p, c in pair_counts.items() if c == max_count]
+        best_pair = max(candidates)  # lexicographically greatest
+
+        # 5. Merge everywhere
+        new_token = best_pair[0] + best_pair[1]
+        merges.append(best_pair)
+        vocab[next_id] = new_token
+        next_id += 1
+
+        # Replace in pre_tokens
+        new_pre_tokens = []
+        for token in pre_tokens:
+            merged = []
+            i = 0
+            while i < len(token):
+                if i < len(token) - 1 and (token[i], token[i+1]) == best_pair:
+                    merged.append(new_token)
+                    i += 2
+                else:
+                    merged.append(token[i])
+                    i += 1
+        new_pre_tokens.append(merged)
+    pre_tokens = new_pre_tokens
+
+    return vocab, merges
+```
